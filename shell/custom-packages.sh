@@ -34,3 +34,6 @@ CUSTOM_PACKAGES="$CUSTOM_PACKAGES luci-app-mosdns"
 CUSTOM_PACKAGES="$CUSTOM_PACKAGES luci-i18n-mosdns-zh-cn"
 # Turbo ACC 网络加速
 CUSTOM_PACKAGES="$CUSTOM_PACKAGES luci-app-turboacc"
+# 时区支持
+CUSTOM_PACKAGES="$CUSTOM_PACKAGES zoneinfo-all"
+CUSTOM_PACKAGES="$CUSTOM_PACKAGES zoneinfo-simple"
