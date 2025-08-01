@@ -1,6 +1,8 @@
 #!/bin/bash
 # ============= imm仓库外的第三方插件==============
 # ============= 若启用 则打开注释 ================
+# dnsmasq-full
+CUSTOM_PACKAGES="$CUSTOM_PACKAGES dnsmasq-full"
 # istore商店
 CUSTOM_PACKAGES="$CUSTOM_PACKAGES luci-app-store"
 # 首页和网络向导
