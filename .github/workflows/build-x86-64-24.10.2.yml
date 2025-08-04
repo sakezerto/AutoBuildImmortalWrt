@@ -1,4 +1,4 @@
-name: build-x86-64-immortalwrt-daily-release # 更改Workflow的名称以反映其功能
+name: build-x86-64-immortalwrt-24.10.2
 
 on:
   workflow_dispatch:
@@ -42,14 +42,6 @@ jobs:
       - name: Set executable permissions
         run: chmod +x ${{ github.workspace }}/x86-64/build24.sh
 
-      # --- 新增步骤：获取当前日期并格式化 ---
-      - name: Get current date and format
-        id: date_step # 步骤ID
-        run: |
-          # 获取当前日期，格式为 YYYY.M.D (例如: 2025.8.4)
-          BUILD_DATE=$(date +'%Y.%-m.%-d')
-          echo "BUILD_DATE=$BUILD_DATE" >> $GITHUB_ENV # 设置为环境变量，供后续步骤使用
-          echo "date=$BUILD_DATE" >> "$GITHUB_OUTPUT" # 也设置为步骤输出，兼容旧语法
 
       - name: Validate PPPoE Inputs
         run: |
@@ -84,51 +76,14 @@ jobs:
               immortalwrt/imagebuilder:x86-64-openwrt-24.10.2 /bin/bash /home/build/immortalwrt/build.sh
           done
 
-      # --- 修改 Create info 步骤，加入日期信息 ---
       - name: Create info
         run: |
-          # 初始化 info.md 文件
-          echo "### ImmortWrt Build Information" > ${{ github.workspace }}/info.md
-          echo "Build Date: ${{ env.BUILD_DATE }}" >> ${{ github.workspace }}/info.md
-          echo "" >> ${{ github.workspace }}/info.md # 添加空行
-
           if [ "${{ github.event.inputs.include_docker }}" == "yes" ]; then
-            echo "#### 默认带docker" >> ${{ github.workspace }}/info.md
+            extra_content="#### 默认带docker"
+            echo -e "\n $extra_content" >> ${{ github.workspace }}/info.md
           else
-            echo "#### 不带docker" >> ${{ github.workspace }}/info.md
+            echo -e "NO docker"
           fi
-
-      # --- 新增步骤：定位构建文件并准备新文件名 ---
-      - name: Locate built file and prepare new name
-        id: locate_file # 步骤ID，以便在Upload步骤中引用
-        run: |
-          # 查找实际的固件文件路径
-          # 我们假设只有一个符合模式的文件，并且位于 ${{ github.workspace }}/bin/targets/x86/64/
-          FIRMWARE_SEARCH_PATH="${{ github.workspace }}/bin/targets/x86/64/"
-          FIRMWARE_PATH=$(find "$FIRMWARE_SEARCH_PATH" -name "*squashfs-combined-efi.img.gz" -print -quit)
-
-          if [ -z "$FIRMWARE_PATH" ]; then
-            echo "Error: Firmware file not found in $FIRMWARE_SEARCH_PATH with pattern *squashfs-combined-efi.img.gz!"
-            exit 1
-          fi
-
-          # 提取原始文件的扩展名（例如 .img.gz）
-          # cut -d'.' -f1-2 | rev 确保获取完整的 ".img.gz" 后缀
-          FILE_EXTENSION=".$(basename "$FIRMWARE_PATH" | rev | cut -d'.' -f1-2 | rev)"
-          # Fallback: 如果不是预期的 .img.gz，则默认 .bin
-          if [[ "$FILE_EXTENSION" != ".img.gz" && "$FILE_EXTENSION" != ".bin" ]]; then
-              FILE_EXTENSION=".bin"
-          fi
-
-          # 构建新的文件名：ImmortWrt YYYY.M.D.img.gz
-          NEW_ASSET_NAME="ImmortWrt ${{ env.BUILD_DATE }}${FILE_EXTENSION}"
-
-          echo "Detected firmware path: $FIRMWARE_PATH"
-          echo "New asset name will be: $NEW_ASSET_NAME"
-
-          echo "FIRMWARE_PATH=$FIRMWARE_PATH" >> "$GITHUB_OUTPUT"
-          echo "NEW_ASSET_NAME=$NEW_ASSET_NAME" >> "$GITHUB_OUTPUT"
-        shell: bash
 
       - name: Upload ImmortWrt as release assets
         uses: softprops/action-gh-release@v2.2.1
