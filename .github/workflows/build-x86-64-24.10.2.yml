@@ -85,14 +85,16 @@ jobs:
             echo -e "NO docker"
           fi
 
+
       - name: Upload ImmortWrt as release assets
         uses: softprops/action-gh-release@v2.2.1
         with:
-          tag_name: ImmortWrt {{ steps.date.outputs.date }}
-          name: ImmortWrt {{ steps.date.outputs.date }}
+          # `tag_name` 和 `name` 可以使用同一个日期，或者根据您的 Release 策略调整
+          tag_name: ImmortWrt-${{ env.BUILD_DATE }} # 建议tag使用稳定格式，例如 ImmortWrt-2025.8.4
+          name: ImmortWrt ${{ env.BUILD_DATE }} # Release 名称
           body_path: ${{ github.workspace }}/info.md
           files: |
-            ${{ github.workspace }}/bin/targets/x86/64/*squashfs-combined-efi.img.gz
+            ${{ steps.locate_file.outputs.FIRMWARE_PATH }}->${{ steps.locate_file.outputs.NEW_ASSET_NAME }} # 在这里重命名文件 [1]
           token: ${{ secrets.GITHUB_TOKEN }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
