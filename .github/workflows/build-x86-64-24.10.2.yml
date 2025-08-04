@@ -89,7 +89,7 @@ jobs:
         uses: softprops/action-gh-release@v2.2.1
         with:
           tag_name: Autobuild-x86-64
-          name: ImmortWrt ${{ env.BUILD_DATE }}
+          name: ImmortWrt-${{ env.BUILD_DATE }}
           body_path: ${{ github.workspace }}/info.md
           files: |
             ${{ github.workspace }}/bin/targets/x86/64/*squashfs-combined-efi.img.gz
