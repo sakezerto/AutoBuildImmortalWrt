@@ -88,8 +88,8 @@ jobs:
       - name: Upload ImmortWrt as release assets
         uses: softprops/action-gh-release@v2.2.1
         with:
-          tag_name: ImmortWrt-v${{ steps.date.outputs.date }}
-          name: ImmortWrt-v${{ steps.date.outputs.date }}
+          tag_name: ImmortWrt {{ steps.date.outputs.date }}
+          name: ImmortWrt {{ steps.date.outputs.date }}
           body_path: ${{ github.workspace }}/info.md
           files: |
             ${{ github.workspace }}/bin/targets/x86/64/*squashfs-combined-efi.img.gz
