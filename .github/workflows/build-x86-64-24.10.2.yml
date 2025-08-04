@@ -90,6 +90,7 @@ jobs:
         with:
           tag_name: ImmortWrt-${{ env.BUILD_DATE }}
           target_commitish: Autobuild-x86-64
+          create_tag: true
           body_path: ${{ github.workspace }}/info.md
           files: |
             ${{ github.workspace }}/bin/targets/x86/64/*squashfs-combined-efi.img.gz
