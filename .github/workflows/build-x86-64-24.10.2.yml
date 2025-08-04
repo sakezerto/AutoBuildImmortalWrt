@@ -93,6 +93,7 @@ jobs:
           tag_name: ImmortWrt-${{ env.BUILD_DATE }} 
           # `name` 字段是 Release 在 GitHub 页面上会显示的名称，可以使用您希望的带空格的格式
           name: ImmortWrt ${{ env.BUILD_DATE }}
+          target_commitish: use
           body_path: ${{ github.workspace }}/info.md
           # 文件路径和新文件名之间用 `->` 连接，且不能有注释
           files: |
