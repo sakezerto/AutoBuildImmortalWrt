@@ -38,9 +38,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          ref: use
-          fetch-depth: 0
 
       - name: Set executable permissions
         run: chmod +x ${{ github.workspace }}/x86-64/build24.sh
@@ -79,11 +76,6 @@ jobs:
               immortalwrt/imagebuilder:x86-64-openwrt-24.10.2 /bin/bash /home/build/immortalwrt/build.sh
           done
 
-      - name: 生成构建日期
-        id: build_date
-        run: |
-          echo "BUILD_DATE=$(date +'%Y.%m.%d')" >> $GITHUB_ENV
-          
       - name: Create info
         run: |
           if [ "${{ github.event.inputs.include_docker }}" == "yes" ]; then
@@ -97,13 +89,10 @@ jobs:
         uses: softprops/action-gh-release@v2.2.1
         with:
           tag_name: ImmortWrt-${{ env.BUILD_DATE }}
-          name: ImmortWrt ${{ env.BUILD_DATE }}
-          target_commitish: use
-          create_tag: true
+          target_commitish: Autobuild-x86-64
           body_path: ${{ github.workspace }}/info.md
           files: |
-            ${{ steps.locate_file.outputs.FIRMWARE_PATH }}->${{ steps.locate_file.outputs.NEW_ASSET_NAME }}
-          draft: false
-          prerelease: false
+            ${{ github.workspace }}/bin/targets/x86/64/*squashfs-combined-efi.img.gz
+          token: ${{ secrets.GITHUB_TOKEN }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
