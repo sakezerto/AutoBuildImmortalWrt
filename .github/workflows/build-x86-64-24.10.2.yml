@@ -38,6 +38,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          ref: use
+          fetch-depth: 0
 
       - name: Set executable permissions
         run: chmod +x ${{ github.workspace }}/x86-64/build24.sh
@@ -76,6 +79,11 @@ jobs:
               immortalwrt/imagebuilder:x86-64-openwrt-24.10.2 /bin/bash /home/build/immortalwrt/build.sh
           done
 
+      - name: 生成构建日期
+        id: build_date
+        run: |
+          echo "BUILD_DATE=$(date +'%Y.%m.%d')" >> $GITHUB_ENV
+          
       - name: Create info
         run: |
           if [ "${{ github.event.inputs.include_docker }}" == "yes" ]; then
@@ -88,17 +96,14 @@ jobs:
       - name: Upload ImmortWrt as release assets
         uses: softprops/action-gh-release@v2.2.1
         with:
-          # `tag_name` 用于实际的 Git Tag。对于 `workflow_dispatch` 触发，`action-gh-release` 会创建这个 tag。
-          # 建议使用不含空格的格式，如 ImmortWrt-2025.8.4
-          tag_name: ImmortWrt-${{ env.BUILD_DATE }} 
-          # `name` 字段是 Release 在 GitHub 页面上会显示的名称，可以使用您希望的带空格的格式
+          tag_name: ImmortWrt-${{ env.BUILD_DATE }}
           name: ImmortWrt ${{ env.BUILD_DATE }}
           target_commitish: use
+          create_tag: true
           body_path: ${{ github.workspace }}/info.md
-          # 文件路径和新文件名之间用 `->` 连接，且不能有注释
           files: |
             ${{ steps.locate_file.outputs.FIRMWARE_PATH }}->${{ steps.locate_file.outputs.NEW_ASSET_NAME }}
-          draft: false # 是否发布为草稿
-          prerelease: false # 是否发布为预发布版本
+          draft: false
+          prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GITHUB_TOKEN 通常直接在 Action 的 `env` 或 `with` 中传递
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
