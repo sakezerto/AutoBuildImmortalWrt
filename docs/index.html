@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ImmortalWrt Firmware Builder - AutoBuildImmortalWrt</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>%F0%9F%94%A7</text></svg>">
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <h1>
+        <span class="logo">ImmortalWrt</span>
+        <span class="subtitle">Firmware Builder</span>
+      </h1>
+      <p class="tagline">AutoBuildImmortalWrt - GitHub Actions</p>
+      <div class="header-links">
+        <a href="https://github.com/sakezerto/autobuildimmortalwrt" target="_blank" class="btn btn-outline">
+          <svg viewBox="0 0 16 16" width="16" height="16"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+          GitHub
+        </a>
+        <a href="https://github.com/sakezerto/autobuildimmortalwrt/releases" target="_blank" class="btn btn-outline">Releases</a>
+        <a href="https://github.com/sakezerto/autobuildimmortalwrt/wiki" target="_blank" class="btn btn-outline">Wiki</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Step 1: Select Target -->
+    <section class="card" id="target-section">
+      <h2><span class="step">1</span> Target / Platform</h2>
+      <div class="target-grid">
+        <button class="target-btn active" data-target="x86-64" onclick="selectTarget(this)">
+          <div class="target-icon">x86</div>
+          <div class="target-name">x86-64</div>
+          <div class="target-desc">Intel / AMD</div>
+        </button>
+        <button class="target-btn" data-target="rockchip" onclick="selectTarget(this)">
+          <div class="target-icon">RK</div>
+          <div class="target-name">Rockchip</div>
+          <div class="target-desc">RK3328/3399/3568/3588</div>
+        </button>
+        <button class="target-btn" data-target="raspberry" onclick="selectTarget(this)">
+          <div class="target-icon">RPi</div>
+          <div class="target-name">Raspberry Pi</div>
+          <div class="target-desc">RPi 1-5</div>
+        </button>
+        <button class="target-btn" data-target="sunxi" onclick="selectTarget(this)">
+          <div class="target-icon">AW</div>
+          <div class="target-name">Allwinner sunxi</div>
+          <div class="target-desc">H5 / H616 / H618</div>
+        </button>
+        <button class="target-btn" data-target="mediatek" onclick="selectTarget(this)">
+          <div class="target-icon">MTK</div>
+          <div class="target-name">MediaTek Filogic</div>
+          <div class="target-desc">MT7981/7986/7988</div>
+        </button>
+        <button class="target-btn" data-target="qemu-arm64" onclick="selectTarget(this)">
+          <div class="target-icon">ARM</div>
+          <div class="target-name">QEMU ARM64</div>
+          <div class="target-desc">qcow2</div>
+        </button>
+        <button class="target-btn" data-target="n1" onclick="selectTarget(this)">
+          <div class="target-icon">N1</div>
+          <div class="target-name">N1 Box</div>
+          <div class="target-desc">Amlogic S905</div>
+        </button>
+        <button class="target-btn" data-target="amlogic" onclick="selectTarget(this)">
+          <div class="target-icon">STB</div>
+          <div class="target-name">Amlogic Box</div>
+          <div class="target-desc">S905/S912/S922</div>
+        </button>
+      </div>
+    </section>
+
+    <!-- Step 2: Select Device -->
+    <section class="card" id="device-section">
+      <h2><span class="step">2</span> Device / Profile</h2>
+      <div class="search-box">
+        <input type="text" id="device-search" placeholder="Search device..." oninput="filterDevices()">
+        <svg class="search-icon" viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      </div>
+      <div class="device-list" id="device-list">
+        <!-- Populated by JS -->
+      </div>
+    </section>
+
+    <!-- Step 3: Configuration -->
+    <section class="card" id="config-section">
+      <h2><span class="step">3</span> Configuration</h2>
+
+      <div class="config-grid">
+        <div class="config-item">
+          <label for="luci-version">LuCI Version</label>
+          <select id="luci-version">
+            <option value="24.10.5">24.10.5</option>
+            <option value="24.10.4">24.10.4</option>
+            <option value="24.10.3">24.10.3</option>
+            <option value="24.10.2">24.10.2</option>
+            <option value="24.10.1">24.10.1</option>
+            <option value="24.10.0">24.10.0</option>
+            <option value="23.05.4">23.05.4</option>
+            <option value="23.05.3">23.05.3</option>
+          </select>
+        </div>
+        <div class="config-item">
+          <label for="firmware-size">Firmware Size (MB)</label>
+          <input type="number" id="firmware-size" value="1024" min="256" max="4096" step="128">
+          <span class="hint">1024-2048 MB</span>
+        </div>
+      </div>
+
+      <div class="toggle-group">
+        <div class="toggle-item">
+          <label class="toggle">
+            <input type="checkbox" id="enable-docker">
+            <span class="toggle-slider"></span>
+          </label>
+          <div class="toggle-label">
+            <span>Docker</span>
+            <span class="toggle-desc">dockerd + dockerman</span>
+          </div>
+        </div>
+        <div class="toggle-item">
+          <label class="toggle">
+            <input type="checkbox" id="enable-store" checked>
+            <span class="toggle-slider"></span>
+          </label>
+          <div class="toggle-label">
+            <span>iStore</span>
+            <span class="toggle-desc"></span>
+          </div>
+        </div>
+        <div class="toggle-item">
+          <label class="toggle">
+            <input type="checkbox" id="enable-pppoe">
+            <span class="toggle-slider"></span>
+          </label>
+          <div class="toggle-label">
+            <span>PPPoE</span>
+            <span class="toggle-desc"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pppoe-config" id="pppoe-config" style="display:none;">
+        <div class="config-grid">
+          <div class="config-item">
+            <label for="pppoe-account">PPPoE Account</label>
+            <input type="text" id="pppoe-account" placeholder="username">
+          </div>
+          <div class="config-item">
+            <label for="pppoe-password">PPPoE Password</label>
+            <input type="password" id="pppoe-password" placeholder="password">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 4: Packages -->
+    <section class="card" id="packages-section">
+      <h2>
+        <span class="step">4</span> Packages
+        <button class="btn-sm" onclick="togglePackages()">Customize</button>
+      </h2>
+      <div class="packages-content" id="packages-content" style="display:none;">
+        <p class="hint">Check packages to include. Use the search to filter.</p>
+        <input type="text" id="pkg-search" placeholder="Search packages..." oninput="filterPackages()">
+        <div class="pkg-categories" id="pkg-categories">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 5: Build Actions -->
+    <section class="card" id="action-section">
+      <h2><span class="step">5</span> Build / Download</h2>
+      <div class="action-buttons">
+        <a id="build-link" href="#" target="_blank" class="btn btn-primary btn-lg">
+          <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg>
+          Build Firmware (GitHub Actions)
+        </a>
+        <a id="release-link" href="https://github.com/sakezerto/autobuildimmortalwrt/releases" target="_blank" class="btn btn-success btn-lg">
+          <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z"/></svg>
+          Download Latest Release
+        </a>
+      </div>
+      <div class="build-info">
+        <p>Click "Build Firmware" to trigger a GitHub Actions workflow. The firmware will be available in Releases when done (~7-8 min for x86).</p>
+      </div>
+    </section>
+
+    <!-- Supported Devices Table -->
+    <section class="card" id="devices-table-section">
+      <h2>Supported Devices
+        <button class="btn-sm" onclick="toggleDeviceTable()">Show All</button>
+      </h2>
+      <div id="devices-table-content" style="display:none;">
+        <div class="table-responsive">
+          <table id="devices-table">
+            <thead>
+              <tr>
+                <th>Platform</th>
+                <th>Device</th>
+                <th>Manufacturer</th>
+                <th>SoC</th>
+                <th>LuCI</th>
+              </tr>
+            </thead>
+            <tbody id="devices-table-body">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <p>AutoBuildImmortalWrt &mdash; Powered by <a href="https://immortalwrt.org" target="_blank">ImmortalWrt</a> &amp; <a href="https://github.com/features/actions" target="_blank">GitHub Actions</a></p>
+      <p class="footer-links">
+        <a href="https://github.com/sakezerto/autobuildimmortalwrt" target="_blank">Source Code</a>
+        <a href="https://github.com/sakezerto/autobuildimmortalwrt/issues" target="_blank">Report Issue</a>
+        <a href="https://github.com/sakezerto/autobuildimmortalwrt/wiki" target="_blank">Documentation</a>
+      </p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
